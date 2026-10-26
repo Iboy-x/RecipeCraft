@@ -1,0 +1,1 @@
+"""RecipeCraft application modules."""

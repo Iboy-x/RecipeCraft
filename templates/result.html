@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ result.recipe.name }} | RecipeCraft</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="hero compact">
+      <p class="eyebrow">YOUR SCALED RECIPE</p>
+      <h1>{{ result.recipe.name }}</h1>
+      <p class="subtitle">Adjusted for {{ result.target_servings }} {{ 'person' if result.target_servings == 1 else 'people' }}.</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-heading"><h2>Ingredients</h2><span class="pill">{{ result.ingredients|length }} items</span></div>
+      <ul class="ingredient-list">
+        {% for ingredient in result.ingredients %}
+          <li>
+            <div><strong>{{ ingredient.quantity }}</strong> {{ ingredient.name }}
+              {% if not ingredient.scaled %}<p class="hint">{{ ingredient.note }}</p>{% endif %}
+            </div>
+            <span class="tag {{ 'yes' if ingredient.substitute_available == 'Y' else 'no' }}">Substitute: {{ ingredient.substitute_available }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <p class="hint">Supported scaling formats: leading integers, decimals, and simple fractions such as <code>1/2 tsp</code>. Ranges and text quantities are preserved unchanged.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Cooking instructions</h2>
+      <ol class="instructions">{% for instruction in result.recipe.instructions %}<li>{{ instruction }}</li>{% endfor %}</ol>
+    </section>
+
+    <section class="panel status-panel">
+      <h2>Dietary restriction check</h2>
+      <span class="tag warning">{{ result.dietary.status }}</span>
+      <p>{{ result.dietary.message }}</p>
+      {% if result.dietary.restrictions %}<p><strong>Selected:</strong> {{ result.dietary.restrictions|join(', ') }}</p>{% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Substitution ideas</h2>
+      <p class="hint">Mock suggestions only. Check suitability and allergies yourself; this is not a validated recommendation engine.</p>
+      <ul class="substitution-list">
+        {% for item in result.substitutions %}
+          <li><strong>{{ item.ingredient }}:</strong>
+            {% if item.status == 'not_available_in_recipe' %}
+              The recipe marks a substitute as unavailable (N).
+            {% elif item.substitute %}
+              {{ item.substitute }} <span class="tag warning">Mock</span>
+            {% else %}
+              No sample substitution is configured for this ingredient yet.
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+    <a class="button secondary" href="{{ url_for('index') }}">← Choose another recipe</a>
+    <footer>RecipeCraft · Student project skeleton</footer>
+  </main>
+</body>
+</html>
